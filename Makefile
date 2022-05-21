@@ -20,6 +20,7 @@ COVERAGE_FILE = $(BIN_DIR)/test-coverage.out
 
 BIN_MARKER   = $(TMP_DIR)/bin.marker
 TEST_MARKER  = $(TMP_DIR)/test.marker
+VET_MARKER   = $(TMP_DIR)/vet.marker
 
 ifndef VERBOSE
 .SILENT:
@@ -33,6 +34,16 @@ all: help
 help: Makefile
 	@echo "Choose a command in "$(PROJECTNAME)":"
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
+
+## vet: Runs Go vet
+vet: $(VET_MARKER)
+
+$(VET_MARKER): prepare $(GO_FILES)
+	@echo "Running Go vet..."
+	@GOBIN=$(BIN_DIR); go vet ./...
+	@gosec ./...
+	@mkdir -p $(@D)
+	@touch $@
 
 ## test: Runs tests.
 test: $(TEST_MARKER)
@@ -76,6 +87,7 @@ deps:
 	@go get -u github.com/prometheus/client_golang/prometheus/promhttp
 	@go get -u github.com/sirupsen/logrus
 	@go get -u github.com/stretchr/testify/assert
+	@go install github.com/securego/gosec/v2/cmd/gosec@latest
 
 prepare:
 	@mkdir -p $(BIN_DIR)

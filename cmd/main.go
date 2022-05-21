@@ -83,7 +83,7 @@ func main() {
 	await := make(chan any)
 	go func() {
 		<-ctx.Done()
-		srv.Close()
+		_ = srv.Close()
 		await <- 1
 	}()
 
